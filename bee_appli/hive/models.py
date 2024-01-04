@@ -19,7 +19,7 @@ class Beekeeper(models.Model):
 
 class BeeYard(models.Model):
     # add location later
-    beekeper = models.ForeignKey(
+    beekeeper = models.ForeignKey(
         # double check that cascade is the right thing to do here
         Beekeeper,
         on_delete=models.CASCADE,
@@ -38,10 +38,8 @@ class Hive(models.Model):
     date_updated = models.DateField(
         auto_now=True, help_text="Date the status was updated"
     )
-    beeyard = models.ForeignKey(
-        BeeYard, on_delete=models.CASCADE, related_name="bee_hives"
-    )
-    age_queen = models.IntegerField()
+    beeyard = models.ForeignKey(BeeYard, on_delete=models.CASCADE, related_name="hives")
+    queen_year = models.IntegerField()
 
 
 class Intervention(models.Model):
@@ -122,4 +120,8 @@ class Contamination(models.Model):
     type = models.CharField(
         choices=TREATMENT_TYPES,
         help_text="The type of contamination affecting the hive",
+    )
+    date = models.DateField(auto_now=True, help_text="Date the contamination was found")
+    hive = models.ForeignKey(
+        Hive, on_delete=models.CASCADE, related_name="contaminations"
     )
