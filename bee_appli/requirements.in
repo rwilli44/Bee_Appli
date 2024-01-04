@@ -1,9 +1,16 @@
+# Django and API Framework
 Django
-django-admin-honeypot-updated-2021
-django-axes
-django-debug-toolbar
 django-environ
 django-filter
 djangorestframework
 markdown
+
+# Database
 psycopg2
+
+# Debugging
+django-debug-toolbar
+
+# Security
+django-admin-honeypot-updated-2021
+django-axes
