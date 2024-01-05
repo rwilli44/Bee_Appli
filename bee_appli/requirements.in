@@ -1,13 +1,14 @@
 # Django and API Framework
-
 Django
-django-environ
 django-filter
 djangorestframework
 markdown
 
 # Database
 psycopg2
+
+# Env variable configuration
+django-environ
 
 # Debugging
 django-debug-toolbar
