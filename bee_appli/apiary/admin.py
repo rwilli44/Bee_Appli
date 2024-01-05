@@ -1,5 +1,8 @@
+# Third-party imports
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib import admin
+
+# Local imports
 from .models import (
     BeeYard,
     Contamination,
@@ -8,10 +11,6 @@ from .models import (
     Quantity,
     Treatment,
 )
-
-
-class InterventionInline(GenericTabularInline):
-    model = Intervention
 
 
 class BeeYardAdmin(admin.ModelAdmin):
@@ -30,6 +29,11 @@ class ContaminationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Contamination, ContaminationAdmin)
+
+
+# Inline model to be displayed in Hive, Quantity and Treatment admins
+class InterventionInline(GenericTabularInline):
+    model = Intervention
 
 
 class HiveAdmin(admin.ModelAdmin):
