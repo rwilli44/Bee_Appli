@@ -13,6 +13,11 @@ from .models import (
 )
 
 
+# Inline model to be displayed in Hive, Quantity and Treatment admins
+class InterventionInline(GenericTabularInline):
+    model = Intervention
+
+
 class BeeYardAdmin(admin.ModelAdmin):
     list_display = ("name",)
     list_filter = ("name", "beekeeper", "hives")
@@ -29,11 +34,6 @@ class ContaminationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Contamination, ContaminationAdmin)
-
-
-# Inline model to be displayed in Hive, Quantity and Treatment admins
-class InterventionInline(GenericTabularInline):
-    model = Intervention
 
 
 class HiveAdmin(admin.ModelAdmin):
