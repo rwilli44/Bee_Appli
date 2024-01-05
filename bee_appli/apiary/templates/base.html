@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bee Appli - Beekeeper's View</title>
+    <style>
+      ul,
+      p,
+      h2,
+      h3 {
+        margin-left: 20%;
+      }
+      h1 {
+        text-align: center;
+      }
+      #page-container {
+        position: relative;
+        min-height: 90vh;
+      }
+      #content-wrap {
+        padding-bottom: 2.5rem;
+      }
+      footer {
+        border-top: 2px dashed #000;
+        height: 2.5rem;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+      }
+
+      footer p {
+        margin-left: 5%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="page-container">
+      <div id="content-wrap">
+        <h1>Bee Appli</h1>
+        {% block content %} {% endblock %}
+      </div>
+      <footer>
+        <p>Created by Rachel Williams.</p>
+        <p>Bzzzz</p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %} 
+{% if beeyard_data %}
+<h2> Hi, {{user}}, here are your hives!</h2>
+{% for beeyard in beeyard_data %}
+<h3>{{beeyard.beeyard_name}} Bee Yard</h2>
+{% for hive in beeyard.hives %}
+<p><strong>Hive ID: {{hive.id}} </strong></p>
+<ul>
+  <li>Status: <em>{{hive.status}}</em></li>
+  <li>Species: <em>{{hive.species}}</em></li>
+  <li>Last Updated: <em>{{hive.date_updated}}</em></li>
+  <li>Queen Year: <em>{{hive.queen_year}}</em></li>
+  <li>
+    <a href="interventions?hive={{hive.id}}"
+      >Click here to see interventions for this hive.</a
+    >
+  </li>
+</ul>
+{%endfor %} {%endfor %} {% else %}
+<h2> Hi, {{user}}. You don't currently have any bee yards. {% endif %} {% endblock %}

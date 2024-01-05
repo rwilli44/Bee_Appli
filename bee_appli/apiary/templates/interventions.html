@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+<h2>Hive {{hive}} Interventions</h2>
+{% for intervention in interventions %}
+<p>
+  <strong> {{intervention.intervention_type}} </strong>
+  {{intervention.date}}
+</p>
+
+{%endfor %}
+<p><a href="/apiary/">Return to bee yard list</a></p>
+{% endblock %}
