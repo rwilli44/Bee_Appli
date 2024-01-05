@@ -5,18 +5,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 
 
-class Beekeeper(models.Model):
-    first_name = models.CharField(max_length=100, help_text="Beekeeper's First Name")
-    last_name = models.CharField(max_length=100, help_text="Beekeeper's Last Name")
-    email = models.EmailField(max_length=100, help_text="Beekeeper's email address")
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="beekeeper"
-    )
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
-
 class BeeYard(models.Model):
     # add location later
     name = models.CharField(
@@ -24,8 +12,9 @@ class BeeYard(models.Model):
     )
     beekeeper = models.ForeignKey(
         # double check that cascade is the right thing to do here
-        Beekeeper,
-        on_delete=models.CASCADE,
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="beeyards",
     )
 
@@ -39,12 +28,29 @@ class Hive(models.Model):
     DESTROYED = "destroyed"
 
     HIVE_STATUS = [(ACTIVE, "Active"), (PENDING, "Pending"), (DESTROYED, "Destroyed")]
-
     status = models.CharField(choices=HIVE_STATUS, help_text="Status of the beehive")
+    BLACB = "Black bee"
+    ITALB = "Italian bee"
+    CAUCB = "Caucasian bee"
+    CARNB = "Carnolian bee"
+    BUCKB = "Buckfast bee"
+
+    BEE_SPECIES = [
+        (BLACB, "Black bee"),
+        (ITALB, "Italian bee"),
+        (CAUCB, "Caucasian bee"),
+        (CARNB, "Carnolian bee"),
+        (BUCKB, "Buckfast bee"),
+    ]
+
+    species = models.CharField(choices=BEE_SPECIES, help_text="Type of bees")
+
     date_updated = models.DateField(
         auto_now=True, help_text="Date the status was updated"
     )
-    beeyard = models.ForeignKey(BeeYard, on_delete=models.CASCADE, related_name="hives")
+    beeyard = models.ForeignKey(
+        BeeYard, on_delete=models.SET_NULL, related_name="hives", null=True
+    )
     queen_year = models.IntegerField()
 
     def __str__(self):
@@ -128,6 +134,7 @@ class Quantity(models.Model):
 
     class Meta:
         verbose_name = "Quantity"
+        verbose_name_plural = "Quanitities"
 
 
 class Treatment(models.Model):
@@ -149,13 +156,13 @@ class Contamination(models.Model):
     PARASITE = "Parasite"
     ILLNESS = "Illness"
 
-    TREATMENT_TYPES = (
+    CONTAMINATION_TYPES = (
         (PARASITE, "Parasite"),
         (ILLNESS, "Illness"),
     )
 
     type = models.CharField(
-        choices=TREATMENT_TYPES,
+        choices=CONTAMINATION_TYPES,
         help_text="The type of contamination affecting the hive",
     )
     date = models.DateField(auto_now=True, help_text="Date the contamination was found")
