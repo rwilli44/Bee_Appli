@@ -1,6 +1,6 @@
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib import admin
 from .models import (
-    Beekeeper,
     BeeYard,
     Contamination,
     Hive,
@@ -10,23 +10,14 @@ from .models import (
 )
 
 
-class BeekeeperAdmin(admin.ModelAdmin):
-    list_display = (
-        "first_name",
-        "last_name",
-        "email",
-        "user",
-    )
-    list_filter = ("first_name", "last_name", "beeyards")
-    search_fields = ("first_name", "last_name", "beeyards")
-
-
-admin.site.register(Beekeeper, BeekeeperAdmin)
+class InterventionInline(GenericTabularInline):
+    model = Intervention
 
 
 class BeeYardAdmin(admin.ModelAdmin):
-    list_filter = ("beekeeper", "hives")
-    search_fields = ("beekeeper", "hives")
+    list_display = ("name",)
+    list_filter = ("name", "beekeeper", "hives")
+    search_fields = ("name", "beekeeper", "hives")
 
 
 admin.site.register(BeeYard, BeeYardAdmin)
@@ -42,9 +33,15 @@ admin.site.register(Contamination, ContaminationAdmin)
 
 
 class HiveAdmin(admin.ModelAdmin):
-    list_display = ("status", "date_updated", "beeyard", "queen_year")
-    list_filter = ("status", "date_updated", "beeyard", "queen_year")
-    search_fields = ("status", "date_updated", "beeyard", "queen_year")
+    description = "test"
+    inlines = [
+        InterventionInline,
+    ]
+    GenericTabularInline.extra = 1
+
+    list_display = ("status", "species", "date_updated", "beeyard", "queen_year")
+    list_filter = ("status", "species", "date_updated", "beeyard", "queen_year")
+    search_fields = ("status", "species", "date_updated", "beeyard", "queen_year")
 
 
 admin.site.register(Hive, HiveAdmin)
@@ -79,6 +76,10 @@ admin.site.register(Intervention, InterventionAdmin)
 
 
 class QuantityAdmin(admin.ModelAdmin):
+    inlines = [
+        InterventionInline,
+    ]
+    GenericTabularInline.extra = 1
     list_display = ("quantity", "units")
     list_filter = ("quantity", "units")
     search_fields = ("quantity", "units")
@@ -88,6 +89,11 @@ admin.site.register(Quantity, QuantityAdmin)
 
 
 class TreatmentAdmin(admin.ModelAdmin):
+    inlines = [
+        InterventionInline,
+    ]
+    GenericTabularInline.extra = 1
+
     list_display = ("treatment_type",)
     list_filter = ("treatment_type", "interventions")
     search_fields = ("treatment_type", "interventions")
