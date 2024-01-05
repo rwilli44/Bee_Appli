@@ -37,7 +37,16 @@ def show_interventions(request):
     """Returns a view which shows all of the interventions for a given hive if
     it belongs to the connected user"""
 
-    hive_id = request.GET["hive"]
+    # If no hive number is specified, return 404 error
+    try:
+        hive_id = request.GET["hive"]
+    except:
+        return render(
+            request,
+            "404.html",
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    # Query the given hive ID
     hive_query = Hive.objects.filter(id=hive_id).values()
 
     # If no hive is found, return not found page
