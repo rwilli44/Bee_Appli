@@ -41,6 +41,9 @@ class Hive(models.Model):
     beeyard = models.ForeignKey(BeeYard, on_delete=models.CASCADE, related_name="hives")
     queen_year = models.IntegerField()
 
+    def __str__(self):
+        return f"Hive {self.pk} in Bee Yard {self.beeyard.pk}"
+
 
 class Intervention(models.Model):
     HARVEST = "Harvest"
@@ -68,18 +71,36 @@ class Intervention(models.Model):
     date = models.DateTimeField(
         auto_now_add=True, help_text="The date of the intervention"
     )
-    hive_affected = models.OneToOneField(
+    hive_affected = models.ForeignKey(
         Hive,
         on_delete=CASCADE,
         blank=False,
         help_text="The Hive concerned by the intervention",
     )
+    limit = (
+        models.Q(
+            app_label="hive",
+            model="quantity",
+        )
+        | models.Q(app_label="hive", model="artificialswarming")
+        | models.Q(app_label="hive", model="treatment")
+    )
 
     content_type = models.ForeignKey(
-        ContentType, blank=True, null=True, on_delete=models.SET_NULL
+        ContentType,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        limit_choices_to=limit,
     )
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey("content_type", "object_id")
+    object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+    )
+    content_object = GenericForeignKey(
+        "content_type",
+        "object_id",
+    )
 
 
 class Quantity(models.Model):
@@ -92,11 +113,20 @@ class Quantity(models.Model):
         help_text="The unit of measure for the honey or syrup",
     )
 
+    def __str__(self):
+        return f"{self.quantity} {self.units}"
+
+    class Meta:
+        verbose_name = "Quantity"
+
 
 class ArtificialSwarming(models.Model):
     origin_hives = models.ManyToManyField(
         Hive, help_text="The parent Hives from which swarms were taken"
     )
+
+    class Meta:
+        verbose_name = "Artificial Swarming"
 
 
 class Treatment(models.Model):
@@ -106,6 +136,12 @@ class Treatment(models.Model):
         help_text="Name of the treatment applied to the hive",
     )
     interventions = GenericRelation("Intervention")
+
+    def __str__(self):
+        return f"{self.treatment_type}"
+
+    class Meta:
+        verbose_name = "Treatment"
 
 
 class Contamination(models.Model):
