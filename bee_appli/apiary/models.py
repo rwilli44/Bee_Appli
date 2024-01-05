@@ -19,12 +19,18 @@ class Beekeeper(models.Model):
 
 class BeeYard(models.Model):
     # add location later
+    name = models.CharField(
+        max_length=100, help_text="A Name to Identify the Bee Yard Easily"
+    )
     beekeeper = models.ForeignKey(
         # double check that cascade is the right thing to do here
         Beekeeper,
         on_delete=models.CASCADE,
         related_name="beeyards",
     )
+
+    def __str__(self):
+        return f"{self.name} Bee Yard"
 
 
 class Hive(models.Model):
@@ -42,7 +48,10 @@ class Hive(models.Model):
     queen_year = models.IntegerField()
 
     def __str__(self):
-        return f"Hive {self.pk} in Bee Yard {self.beeyard.pk}"
+        return f"Hive {self.pk} in {self.beeyard.name} Bee Yard "
+
+    class Meta:
+        verbose_name = "Hive"
 
 
 class Intervention(models.Model):
@@ -75,15 +84,12 @@ class Intervention(models.Model):
         Hive,
         on_delete=CASCADE,
         blank=False,
-        help_text="The Hive concerned by the intervention",
+        help_text="The Hive concerned by the intervention. For Artificial Swarmings select the child hive.",
     )
     limit = (
-        models.Q(
-            app_label="hive",
-            model="quantity",
-        )
-        | models.Q(app_label="hive", model="artificialswarming")
-        | models.Q(app_label="hive", model="treatment")
+        models.Q(app_label="apiary", model="quantity")
+        | models.Q(app_label="apiary", model="hive")
+        | models.Q(app_label="apiary", model="treatment")
     )
 
     content_type = models.ForeignKey(
@@ -92,6 +98,10 @@ class Intervention(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         limit_choices_to=limit,
+        help_text="""For interventions requiring a quantity (Harvest, Syrup) select Apiary | Quantity. 
+        For an Artificial Swarming select Apiary | Hive to select the parent hive. 
+        For a treatment, select Apiary | treatment to select the type of treatment. 
+        Quantity and treatment objects must be created before they can be selected for an intervention.""",
     )
     object_id = models.PositiveIntegerField(
         blank=True,
@@ -118,15 +128,6 @@ class Quantity(models.Model):
 
     class Meta:
         verbose_name = "Quantity"
-
-
-class ArtificialSwarming(models.Model):
-    origin_hives = models.ManyToManyField(
-        Hive, help_text="The parent Hives from which swarms were taken"
-    )
-
-    class Meta:
-        verbose_name = "Artificial Swarming"
 
 
 class Treatment(models.Model):

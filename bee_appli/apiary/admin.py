@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import (
-    ArtificialSwarming,
     Beekeeper,
     BeeYard,
     Contamination,
@@ -9,14 +8,6 @@ from .models import (
     Quantity,
     Treatment,
 )
-
-
-class ArtificialSwarmingAdmin(admin.ModelAdmin):
-    list_filter = ("origin_hives",)
-    search_fields = ("origin_hives",)
-
-
-admin.site.register(ArtificialSwarming, ArtificialSwarmingAdmin)
 
 
 class BeekeeperAdmin(admin.ModelAdmin):
