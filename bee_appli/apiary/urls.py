@@ -6,6 +6,8 @@ from . import views
 
 
 urlpatterns = [
-    path("", views.show_beeyards),
+    # Show connected user's hive details
+    path("", views.show_beeyards, name="show_beeyards"),
+    # Show connected user's hives' interventions
     path("interventions/", views.show_interventions),
 ]
