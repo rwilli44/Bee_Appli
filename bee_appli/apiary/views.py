@@ -1,15 +1,32 @@
 # Third-party imports
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
 
 # Local imports
 from .models import BeeYard, Hive, Intervention
 from .serializers import BeeYardSerializer, HiveSerializer, InterventionSerializer
+from .localpermissions import IsKeeperOrReadOnly
+
+##### Views for Beekeeper Access #####
+
+
+class BeeYardViewset(viewsets.ModelViewSet):
+    queryset = BeeYard.objects.all()
+    serializer_class = BeeYardSerializer
+    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
 
 
 ##### Template Views #####
 def show_beeyards(request):
     """Returns a view of all the bee yards and hives of the connected user."""
+    # If the user is not connected, return a 401 page
+    if isinstance(request.user, AnonymousUser):
+        return render(
+            request,
+            "401.html",
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
     # Query beeyards for those belonging to the user
     beeyard_query = BeeYard.objects.filter(beekeeper=request.user).values()
@@ -36,7 +53,13 @@ def show_beeyards(request):
 def show_interventions(request):
     """Returns a view which shows all of the interventions for a given hive if
     it belongs to the connected user"""
-
+    # If the user is not connected, return a 401 page
+    if isinstance(request.user, AnonymousUser):
+        return render(
+            request,
+            "401.html",
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
     # If no hive number is specified, return 404 error
     try:
         hive_id = request.GET["hive"]
