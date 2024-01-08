@@ -1,9 +1,13 @@
+# Standard library imports
+import datetime
+
 # Third-party imports
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class BeeYard(models.Model):
@@ -56,7 +60,11 @@ class Hive(models.Model):
     beeyard = models.ForeignKey(
         BeeYard, on_delete=SET_NULL, related_name="hives", null=True
     )
-    queen_year = models.IntegerField()
+    CURRENT_YEAR = datetime.date.today().year
+    queen_year = models.IntegerField(
+        default=CURRENT_YEAR,
+        validators=[MinValueValidator(2000), MaxValueValidator(2040)],
+    )
     parent_hives = GenericRelation("Intervention")
 
     def __str__(self):
@@ -100,7 +108,7 @@ class Intervention(models.Model):
         Hive,
         on_delete=CASCADE,
         blank=False,
-        help_text="The Hive concerned by the intervention. For Artificial Swarmings select the child hive.",
+        help_text="The Hive concerned by the intervention. For Artificial Swarmings select the PARENT hive.",
     )
     # Queries to determine which objects may be selected as the generic foreign key
     limit = (
@@ -116,9 +124,9 @@ class Intervention(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         limit_choices_to=limit,
-        help_text="""For an Artificial Swarming select Apiary | Hive to select the parent hive. 
-        For a treatment, select Apiary | treatment to select the type of treatment. 
-        Quantity and treatment objects must be created before they can be selected for an intervention.""",
+        help_text="""For an Artificial Swarming select Apiary | Hive to select the CHILD hive. 
+        For a treatment, select Apiary | Treatment to select the type of treatment. 
+        Harvest and Syrup Distribution objects must be created before they can be selected for an intervention.""",
     )
     # The ID of the foreign key object, null if no FK is needed
     object_id = models.PositiveIntegerField(
