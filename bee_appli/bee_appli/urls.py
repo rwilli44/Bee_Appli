@@ -14,14 +14,19 @@ class CustomRouter(routers.DefaultRouter):
         # Define a custom route for the list action
         routers.Route(
             url=r"^{prefix}{trailing_slash}$",
-            mapping={"get": "filtered_list"},
+            mapping={"get": "filtered_list", "post": "create"},
             name="{basename}-filtered-list",
             detail=False,
             initkwargs={"suffix": "List"},
         ),
         routers.Route(
             url=r"^{prefix}/{lookup}{trailing_slash}$",
-            mapping={"get": "retrieve"},
+            mapping={
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy",
+            },
             name="{basename}-detail",
             detail=True,
             initkwargs={"suffix": "Detail"},
