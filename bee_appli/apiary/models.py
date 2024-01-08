@@ -218,14 +218,3 @@ class Contamination(models.Model):
     hive = models.ForeignKey(
         Hive, on_delete=models.CASCADE, related_name="contaminations"
     )
-
-
-class PublicContact(models.Model):
-    """This model serves to store all Beekeepers who allow their
-    contact information to be made public."""
-
-    public_beekeeper_info = models.ForeignKey(
-        User,
-        on_delete=CASCADE,
-        related_name="allows_public_contact",
-    )
