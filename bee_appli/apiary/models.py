@@ -18,7 +18,6 @@ class BeeYard(models.Model):
         max_length=100, help_text="A Name to Identify the Bee Yard Easily"
     )
     beekeeper = models.ForeignKey(
-        # double check that cascade is the right thing to do here
         User,
         on_delete=SET_NULL,
         null=True,
@@ -218,4 +217,15 @@ class Contamination(models.Model):
     date = models.DateField(auto_now=True, help_text="Date the contamination was found")
     hive = models.ForeignKey(
         Hive, on_delete=models.CASCADE, related_name="contaminations"
+    )
+
+
+class PublicContact(models.Model):
+    """This model serves to store all Beekeepers who allow their
+    contact information to be made public."""
+
+    public_beekeeper_info = models.ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name="allows_public_contact",
     )
