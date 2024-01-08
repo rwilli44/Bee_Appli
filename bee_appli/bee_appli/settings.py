@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     # Local apps
     "apiary",
+    "public_api",
 ]
 
 MIDDLEWARE = [
