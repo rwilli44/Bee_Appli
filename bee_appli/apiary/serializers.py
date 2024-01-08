@@ -21,30 +21,13 @@ class ContaminationSerializer(serializers.ModelSerializer):
 
 
 class HiveSerializer(serializers.ModelSerializer):
-    interventions = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="intervention"
-    )
-    contaminations = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="contaminations"
-    )
-
     class Meta:
         model = Hive
-        fields = [
-            "status",
-            "species",
-            "date_updated",
-            "beeyard_id",
-            "queen_year",
-            "id",
-            "interventions",
-            "contaminations",
-        ]
+        fields = ["status", "species", "date_updated", "beeyard_id", "queen_year", "id"]
 
 
 class BeeYardSerializer(serializers.ModelSerializer):
     hives_detailed = HiveSerializer(source="hives", read_only=True, many=True)
-    hives = serializers.SlugRelatedField(many=True, read_only=True, slug_field="hive")
 
     class Meta:
         model = BeeYard
@@ -103,10 +86,6 @@ class TreatmentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    beeyards = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="beeyard"
-    )
-
     class Meta:
         model = User
-        fields = ["url", "username", "email", "groups", "beeyards"]
+        fields = ["url", "username", "email", "groups"]
