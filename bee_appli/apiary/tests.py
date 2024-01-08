@@ -5,20 +5,21 @@ from django.urls import reverse
 from unittest.mock import Mock
 
 # Local imports
-from .models import BeeYard, Quantity
+from .models import BeeYard, Harvest, Hive
 
 
 ##### Models Tests #####
 
 
-class QuantityTest(TestCase):
-    def create_quantity(self, quantity=11.3, units="Kilograms"):
-        return Quantity.objects.create(quantity=quantity, units=units)
+class HarvestTest(TestCase):
+    def create_quantity(self, quantity=11.3):
+        return Harvest.objects.create(quantity=quantity)
 
     def test_quantity_creation(self):
         quantity_test_obj = self.create_quantity()
-        self.assertTrue(isinstance(quantity_test_obj, Quantity))
-        self.assertEqual("11.3 Kilograms", quantity_test_obj.__str__())
+        self.assertTrue(isinstance(quantity_test_obj, Harvest))
+        expected_response = "11.3 kilograms"
+        self.assertEqual(expected_response, quantity_test_obj.__str__())
 
 
 class BeeYardAccessTest(TestCase):
@@ -49,6 +50,7 @@ class BeeYardAccessTest(TestCase):
     def test_beeyard_access_notauthenticated(self):
         url = reverse("show_beeyards")
         resp = self.client.get(url)
+        # A 401 error is expected without authentication
         self.assertEqual(resp.status_code, 401)
 
     def test_beeyard_access_authenticated(self):
@@ -58,11 +60,15 @@ class BeeYardAccessTest(TestCase):
         request.user = self.user
         self.client.force_login(self.user)
         test_yard = BeeYard.objects.create(name="TestYard1", beekeeper=self.user)
-
+        test_hive = Hive.objects.create(
+            status="pending", species="Buckfast bee", beeyard=test_yard, queen_year=2022
+        )
         url = reverse("show_beeyards")
         resp = self.client.get(url)
 
         # Log out
         self.client.logout()
+        # A 200 code is expected for an authenticated user
         self.assertEqual(resp.status_code, 200)
+        # The returned page should contain the name of the user's beeyard
         self.assertContains(resp, "TestYard1")
