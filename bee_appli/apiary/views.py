@@ -8,12 +8,25 @@ from .models import BeeYard, Hive, Intervention
 from .serializers import BeeYardSerializer, HiveSerializer, InterventionSerializer
 from .localpermissions import IsKeeperOrReadOnly
 
-##### Views for Beekeeper Access #####
+
+##### Views for Beekeeper Access to Data via API #####
 
 
-class BeeYardViewset(viewsets.ModelViewSet):
+class BeeYardViewSet(viewsets.ModelViewSet):
     queryset = BeeYard.objects.all()
     serializer_class = BeeYardSerializer
+    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
+
+
+class HiveViewSet(viewsets.ModelViewSet):
+    queryset = Hive.objects.all()
+    serializer_class = HiveSerializer
+    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
+
+
+class InterventionViewSet(viewsets.ModelViewSet):
+    queryset = Intervention.objects.all()
+    serializer_class = InterventionSerializer
     permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
 
 

@@ -8,7 +8,9 @@ from .settings import DEBUG
 from apiary import views
 
 router = routers.DefaultRouter()
-router.register(r"beeyards", views.BeeYardViewset)
+router.register(r"beeyards", views.BeeYardViewSet)
+router.register(r"hives", views.HiveViewSet)
+router.register(r"interventions", views.InterventionViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

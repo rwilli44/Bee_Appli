@@ -31,7 +31,25 @@ class BeeYardSerializer(serializers.ModelSerializer):
         fields = ["name", "beekeeper_id"]
 
 
+class ContentObjectRelatedField(serializers.RelatedField):
+    """
+    A serializer for the 'content object' generic relationship
+    used in the Intervention model
+    """
+
+    def to_representation(self, value):
+        if isinstance(value, Quantity):
+            return QuantitySerializer(value).data
+        elif isinstance(value, Treatment):
+            return TreatmentSerializer(value).data
+        elif isinstance(value, Hive):
+            return HiveSerializer(value).data
+        raise Exception("Unexpected type of tagged object")
+
+
 class InterventionSerializer(serializers.ModelSerializer):
+    content_object = ContentObjectRelatedField(read_only=True)
+
     class Meta:
         model = Intervention
         fields = [
@@ -53,7 +71,7 @@ class QuantitySerializer(serializers.ModelSerializer):
 class TreatmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Treatment
-        fields = ["treatment_type", "interventions"]
+        fields = ["treatment_type"]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
