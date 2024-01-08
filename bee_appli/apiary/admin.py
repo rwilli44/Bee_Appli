@@ -1,6 +1,6 @@
 # Third-party imports
-from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 # Local imports
 from .models import (
