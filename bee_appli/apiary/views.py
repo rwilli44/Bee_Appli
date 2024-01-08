@@ -2,11 +2,13 @@
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 # Local imports
 from .models import BeeYard, Hive, Intervention
+from .localpermissions import IsKeeperOrReadOnly, IsKeeper
 from .serializers import BeeYardSerializer, HiveSerializer, InterventionSerializer
-from .localpermissions import IsKeeperOrReadOnly
 
 
 ##### Views for Beekeeper Access to Data via API #####
@@ -15,19 +17,81 @@ from .localpermissions import IsKeeperOrReadOnly
 class BeeYardViewSet(viewsets.ModelViewSet):
     queryset = BeeYard.objects.all()
     serializer_class = BeeYardSerializer
-    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # Only allows access to the beeyards of
+        # the authenticated beekeeper
+        IsKeeper,
+    ]
+
+    def filtered_list(self, request):
+        """Filters the BeeYard objects to return only those belonging to
+        the authenticated user. This function is used by the custom
+        router in as the default List return for Get requests.
+
+        Args:
+            request (Request): a request object
+
+        Returns:
+            Response: serialized JSON data
+        """
+        filtered_queryset = BeeYard.objects.filter(beekeeper=request.user)
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response(serializer.data)
 
 
 class HiveViewSet(viewsets.ModelViewSet):
     queryset = Hive.objects.all()
     serializer_class = HiveSerializer
-    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # Only allows access to the beeyards of
+        # the authenticated beekeeper
+        IsKeeper,
+    ]
+
+    def filtered_list(self, request):
+        """Filters the Hive objects to return only those belonging to
+        the authenticated user. This function is used by the custom
+        router in as the default List return for Get requests.
+
+        Args:
+            request (Request): a request object
+
+        Returns:
+            Response: serialized JSON data
+        """
+        filtered_queryset = Hive.objects.filter(beeyard__beekeeper=request.user)
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response(serializer.data)
 
 
 class InterventionViewSet(viewsets.ModelViewSet):
     queryset = Intervention.objects.all()
     serializer_class = InterventionSerializer
-    permission_classes = [permissions.IsAuthenticated, IsKeeperOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # Only allows access to the beeyards of
+        # the authenticated beekeeper
+        IsKeeper,
+    ]
+
+    def filtered_list(self, request):
+        """Filters the Intervention objects to return only those belonging to
+        the authenticated user. This function is used by the custom
+        router in as the default List return for Get requests.
+
+        Args:
+            request (Request): a request object
+
+        Returns:
+            Response: serialized JSON data
+        """
+        filtered_queryset = Intervention.objects.filter(
+            hive_affected__beeyard__beekeeper=request.user
+        )
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response(serializer.data)
 
 
 ##### Template Views #####

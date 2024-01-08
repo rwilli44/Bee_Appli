@@ -1,5 +1,6 @@
 # Third-party imports
 from django.urls import path
+from django.contrib.auth.models import AnonymousUser
 
 # Local imports
 from . import views
