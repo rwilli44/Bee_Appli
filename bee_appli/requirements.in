@@ -16,3 +16,6 @@ django-debug-toolbar
 # Security
 django-admin-honeypot-updated-2021
 django-axes
+
+# Testing
+coverage
