@@ -19,6 +19,13 @@ class CustomRouter(routers.DefaultRouter):
             detail=False,
             initkwargs={"suffix": "List"},
         ),
+        routers.Route(
+            url=r"^{prefix}/{lookup}{trailing_slash}$",
+            mapping={"get": "retrieve"},
+            name="{basename}-detail",
+            detail=True,
+            initkwargs={"suffix": "Detail"},
+        ),
     ]
 
 
