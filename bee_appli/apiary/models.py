@@ -104,8 +104,9 @@ class Intervention(models.Model):
     )
     # Queries to determine which objects may be selected as the generic foreign key
     limit = (
-        models.Q(app_label="apiary", model="quantity")
+        models.Q(app_label="apiary", model="harvest")
         | models.Q(app_label="apiary", model="hive")
+        | models.Q(app_label="apiary", model="syrupdistribution")
         | models.Q(app_label="apiary", model="treatment")
     )
     # Field to select one of the above object choices, null if not needed
@@ -115,8 +116,7 @@ class Intervention(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         limit_choices_to=limit,
-        help_text="""For interventions requiring a quantity (Harvest, Syrup) select Apiary | Quantity. 
-        For an Artificial Swarming select Apiary | Hive to select the parent hive. 
+        help_text="""For an Artificial Swarming select Apiary | Hive to select the parent hive. 
         For a treatment, select Apiary | treatment to select the type of treatment. 
         Quantity and treatment objects must be created before they can be selected for an intervention.""",
     )
@@ -133,26 +133,45 @@ class Intervention(models.Model):
     )
 
 
-class Quantity(models.Model):
-    """Model to store quantities for honey harvests or syrup distribution. Linked to
-    specific interventions via a generic foreign key relationship."""
+class Harvest(models.Model):
+    """Model to store quantities of honey harvested. Linked to specific
+    interventions via a generic foreign key relationship."""
 
-    quantity = models.FloatField(help_text="Quantity of the honey or syrup")
-
-    KG = "Kilograms"
-    ML = "Milliliters"
-    UNIT_CHOICES = ((KG, "Kilograms"), (ML, "Milliliters"))
-    units = models.CharField(
-        choices=UNIT_CHOICES,
-        help_text="The unit of measure for the honey or syrup",
-    )
+    quantity = models.FloatField(help_text="Quantity of the honey harvested in kilos")
 
     def __str__(self):
-        return f"{self.quantity} {self.units}"
+        return f"{self.quantity} kilograms"
 
     class Meta:
-        verbose_name = "Quantity"
-        verbose_name_plural = "Quanitities"
+        verbose_name = "Harvest"
+
+
+class SyrupDistribution(models.Model):
+    """Model to store quantities  and types of syrup distributed. Linked to
+    specific interventions via a generic foreign key relationship."""
+
+    NECTAR = "Nectar"
+    CANE_SUGAR = "Cane Sugar"
+    WHITE_SUGAR = "White Sugar"
+    RAW_SUGAR = "Raw Sugar"
+
+    SYRUP_TYPES = (
+        (NECTAR, "Nectar"),
+        (CANE_SUGAR, "Cane Sugar"),
+        (WHITE_SUGAR, "White Sugar"),
+        (RAW_SUGAR, "Raw Sugar"),
+    )
+    syrup_type = models.CharField(
+        choices=SYRUP_TYPES,
+        help_text="The type of syrup provided to the hive",
+    )
+    quantity = models.FloatField(help_text="Quantity of the syrup provided in liters")
+
+    def __str__(self):
+        return f"{self.quantity} liters"
+
+    class Meta:
+        verbose_name = "Syrup Distribution"
 
 
 class Treatment(models.Model):

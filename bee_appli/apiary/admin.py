@@ -8,7 +8,8 @@ from .models import (
     Contamination,
     Hive,
     Intervention,
-    Quantity,
+    Harvest,
+    SyrupDistribution,
     Treatment,
 )
 
@@ -16,6 +17,26 @@ from .models import (
 # Inline model to be displayed in Hive, Quantity and Treatment admins
 class InterventionInline(GenericTabularInline):
     model = Intervention
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+
+        # Check the parent admin model
+        parent_model = self.parent_model
+
+        # Customize default values based on the parent model
+        if parent_model == Harvest:
+            formset.form.base_fields["intervention_type"].initial = "Harvest"
+        elif parent_model == SyrupDistribution:
+            formset.form.base_fields["intervention_type"].initial = "Syrup Distribution"
+        elif parent_model == Treatment:
+            formset.form.base_fields["intervention_type"].initial = "Treatment"
+        elif parent_model == Hive:
+            formset.form.base_fields[
+                "intervention_type"
+            ].initial = "Artificial Swarming"
+
+        return formset
 
 
 class BeeYardAdmin(admin.ModelAdmin):
@@ -79,17 +100,30 @@ class InterventionAdmin(admin.ModelAdmin):
 admin.site.register(Intervention, InterventionAdmin)
 
 
-class QuantityAdmin(admin.ModelAdmin):
+class HarvestAdmin(admin.ModelAdmin):
     inlines = [
         InterventionInline,
     ]
     GenericTabularInline.extra = 1
-    list_display = ("quantity", "units")
-    list_filter = ("quantity", "units")
-    search_fields = ("quantity", "units")
+    list_display = ("quantity",)
+    list_filter = ("quantity",)
+    search_fields = ("quantity",)
 
 
-admin.site.register(Quantity, QuantityAdmin)
+admin.site.register(Harvest, HarvestAdmin)
+
+
+class SyrupDistributionAdmin(admin.ModelAdmin):
+    inlines = [
+        InterventionInline,
+    ]
+    GenericTabularInline.extra = 1
+    list_display = ("quantity", "syrup_type")
+    list_filter = ("quantity", "syrup_type")
+    search_fields = ("quantity", "syrup_type")
+
+
+admin.site.register(SyrupDistribution, SyrupDistributionAdmin)
 
 
 class TreatmentAdmin(admin.ModelAdmin):

@@ -8,7 +8,8 @@ from .models import (
     Contamination,
     Hive,
     Intervention,
-    Quantity,
+    Harvest,
+    SyrupDistribution,
     Treatment,
 )
 
@@ -20,15 +21,34 @@ class ContaminationSerializer(serializers.ModelSerializer):
 
 
 class HiveSerializer(serializers.ModelSerializer):
+    interventions = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="intervention"
+    )
+    contaminations = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="contaminations"
+    )
+
     class Meta:
         model = Hive
-        fields = ["status", "species", "date_updated", "beeyard_id", "queen_year", "id"]
+        fields = [
+            "status",
+            "species",
+            "date_updated",
+            "beeyard_id",
+            "queen_year",
+            "id",
+            "interventions",
+            "contaminations",
+        ]
 
 
 class BeeYardSerializer(serializers.ModelSerializer):
+    hives_detailed = HiveSerializer(source="hives", read_only=True, many=True)
+    hives = serializers.SlugRelatedField(many=True, read_only=True, slug_field="hive")
+
     class Meta:
         model = BeeYard
-        fields = ["name", "beekeeper_id"]
+        fields = ["name", "beekeeper_id", "hives", "hives_detailed"]
 
 
 class ContentObjectRelatedField(serializers.RelatedField):
@@ -38,8 +58,10 @@ class ContentObjectRelatedField(serializers.RelatedField):
     """
 
     def to_representation(self, value):
-        if isinstance(value, Quantity):
-            return QuantitySerializer(value).data
+        if isinstance(value, Harvest):
+            return HarvestSerializer(value).data
+        elif isinstance(value, SyrupDistribution):
+            return SyrupDistributionSerializer(value).data
         elif isinstance(value, Treatment):
             return TreatmentSerializer(value).data
         elif isinstance(value, Hive):
@@ -62,10 +84,16 @@ class InterventionSerializer(serializers.ModelSerializer):
         ]
 
 
-class QuantitySerializer(serializers.ModelSerializer):
+class HarvestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Quantity
-        fields = ["quantity", "units"]
+        model = Harvest
+        fields = ["quantity"]
+
+
+class SyrupDistributionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SyrupDistribution
+        fields = ["quantity", "syrup_type"]
 
 
 class TreatmentSerializer(serializers.ModelSerializer):
@@ -75,6 +103,10 @@ class TreatmentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    beeyards = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="beeyard"
+    )
+
     class Meta:
         model = User
-        fields = ["url", "username", "email", "groups"]
+        fields = ["url", "username", "email", "groups", "beeyards"]
