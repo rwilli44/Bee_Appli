@@ -61,7 +61,11 @@ class BeeYardAccessTest(TestCase):
         self.client.force_login(self.user)
         test_yard = BeeYard.objects.create(name="TestYard1", beekeeper=self.user)
         test_hive = Hive.objects.create(
-            status="pending", species="Buckfast bee", beeyard=test_yard, queen_year=2022
+            status="pending",
+            species="Buckfast bee",
+            beeyard=test_yard,
+            queen_year=2022,
+            name="A",
         )
         url = reverse("show_beeyards")
         resp = self.client.get(url)

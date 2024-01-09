@@ -28,6 +28,7 @@ class HiveFilter(filters.FilterSet):
     class Meta:
         model = Hive
         fields = {
+            "name": ["icontains", "contains", "exact"],
             "status": ["icontains", "contains", "exact"],
             "species": ["icontains", "contains", "exact"],
             "date_updated": ["exact", "gt", "lt", "gte", "lte"],
