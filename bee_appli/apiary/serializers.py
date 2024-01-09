@@ -31,7 +31,7 @@ class BeeYardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BeeYard
-        fields = ["name", "beekeeper_id", "hives", "hives_detailed"]
+        fields = ["name", "beekeeper", "hives", "hives_detailed"]
 
 
 class ContentObjectRelatedField(serializers.RelatedField):

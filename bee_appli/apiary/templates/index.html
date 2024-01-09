@@ -3,7 +3,9 @@
 <h2> Hi, {{user}}, here are your hives!</h2>
 {% for beeyard in beeyard_data %}
 <h3>{{beeyard.beeyard_name}} Bee Yard</h2>
+  
 {% for hive in beeyard.hives %}
+
 <p><strong>Hive ID: {{hive.id}} </strong></p>
 <ul>
   <li>Status: <em>{{hive.status}}</em></li>

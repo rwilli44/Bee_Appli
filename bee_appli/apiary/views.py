@@ -106,7 +106,7 @@ def show_beeyards(request):
         )
 
     # Query beeyards for those belonging to the user
-    beeyard_query = BeeYard.objects.filter(beekeeper=request.user).values()
+    beeyard_query = BeeYard.objects.filter(beekeeper=request.user)
 
     # If none are found display a message
     if len(beeyard_query) == 0:
@@ -114,15 +114,24 @@ def show_beeyards(request):
 
     # For each beeyard, get data for each hive
     data = []
-    for beeyard in beeyard_query:
-        hive_query = Hive.objects.filter(beeyard=beeyard["id"]).values()
-        beeyard_data = BeeYardSerializer(beeyard).data
-        hive_data = HiveSerializer(hive_query, many=True).data
-        data.append({"beeyard_name": beeyard_data["name"], "hives": hive_data})
+    for beeyard in beeyard_query.all():
+        hive_query = Hive.objects.filter(beeyard=beeyard.id).all()
+        hives = []
+        for hive in hive_query:
+            hives.append(
+                {
+                    "id": hive.pk,
+                    "status": hive.status,
+                    "species": hive.species,
+                    "date_updated": hive.date_updated,
+                    "queen_year": hive.queen_year,
+                }
+            )
+        data.append({"beeyard_name": beeyard.name, "hives": hives})
 
     # Create the json type object to pass the results to the template
     context = {"beeyard_data": data, "user": request.user.username}
-
+    # test_context = {"beeyard_data": None, "user": "bob"}
     # Return an http response to the request with the filled-in template
     return render(request, "index.html", context)
 
@@ -168,7 +177,24 @@ def show_interventions(request):
             status=status.HTTP_401_UNAUTHORIZED,
         )
     # Query and return a view of the hive's interventions
-    intervention_query = Intervention.objects.filter(hive_affected=hive_id).values()
-    interventions = InterventionSerializer(intervention_query, many=True).data
+    intervention_query = Intervention.objects.filter(hive_affected=hive_id).all()
+    interventions = []
+    for intervention in intervention_query:
+        intervention_data = {
+            "intervention_type": intervention.intervention_type,
+            "date": intervention.date,
+        }
+        if intervention.intervention_type == "Syrup Distribution":
+            intervention_data["quantity"] = intervention.content_object.quantity
+            intervention_data["units"] = "liters"
+            intervention_data["syrup_type"] = intervention.content_object.syrup_type
+        elif intervention.intervention_type == "Harvest":
+            intervention_data["quantity"] = intervention.content_object.quantity
+            intervention_data["units"] = "kilos"
+        elif intervention.intervention_type == "Treatement":
+            intervention_data["type"] = intervention.content_object.type
+        elif intervention.intervention_type == "Artificial Swarming":
+            intervention_data["child_hive"] = intervention.content_object.__str__
+        interventions.append(intervention_data)
     context = {"hive": hive_id, "interventions": interventions}
     return render(request, "interventions.html", context)
