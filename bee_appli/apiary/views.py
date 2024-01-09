@@ -33,21 +33,16 @@ class BeeYardViewSet(viewsets.ModelViewSet):
     filterset_class = BeeYardFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
-    def filtered_list(self, request):
-        """Filters the BeeYard objects to return only those belonging to
-        the authenticated user. This function is used by the custom
-        router in as the default List return for Get requests.
+    def get_queryset(self, *args, **kwargs):
+        return BeeYard.objects.all().filter(beekeeper=self.request.user)
 
-        Args:
-            request (Request): a request object
+    @action(detail=False, methods=["GET"])
+    def health_check_all_hives(self, request):
+        print("Entering health_check_all_hives method")
+        # ... other code
+        print("Exiting health_check_all_hives method")
 
-        Returns:
-            Response: serialized JSON data
-        """
-        filtered_queryset = BeeYard.objects.filter(beekeeper=request.user)
-        filtered_queryset = self.filter_queryset(filtered_queryset)
-        serializer = self.get_serializer(filtered_queryset, many=True)
-        return Response(serializer.data)
+        return Response({"message": "Health check for all hives"})
 
 
 class HiveViewSet(viewsets.ModelViewSet):
@@ -62,21 +57,8 @@ class HiveViewSet(viewsets.ModelViewSet):
     filterset_class = HiveFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
-    def filtered_list(self, request):
-        """Filters the Hive objects to return only those belonging to
-        the authenticated user. This function is used by the custom
-        router in as the default List return for Get requests.
-
-        Args:
-            request (Request): a request object
-
-        Returns:
-            Response: serialized JSON data
-        """
-        filtered_queryset = Hive.objects.filter(beeyard__beekeeper=request.user)
-        filtered_queryset = self.filter_queryset(filtered_queryset)
-        serializer = self.get_serializer(filtered_queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self, *args, **kwargs):
+        return Hive.objects.all().filter(beeyard__beekeeper=self.request.user)
 
 
 class InterventionViewSet(viewsets.ModelViewSet):
@@ -91,23 +73,10 @@ class InterventionViewSet(viewsets.ModelViewSet):
     filterset_class = InterventionFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
-    def filtered_list(self, request):
-        """Filters the Intervention objects to return only those belonging to
-        the authenticated user. This function is used by the custom
-        router in as the default List return for Get requests.
-
-        Args:
-            request (Request): a request object
-
-        Returns:
-            Response: serialized JSON data
-        """
-        filtered_queryset = Intervention.objects.filter(
-            hive_affected__beeyard__beekeeper=request.user
+    def get_queryset(self, *args, **kwargs):
+        return Intervention.objects.all().filter(
+            hive_affected__beeyard__beekeeper=self.request.user
         )
-        filtered_queryset = self.filter_queryset(filtered_queryset)
-        serializer = self.get_serializer(filtered_queryset, many=True)
-        return Response(serializer.data)
 
 
 class ContaminationViewSet(viewsets.ModelViewSet):
@@ -122,23 +91,10 @@ class ContaminationViewSet(viewsets.ModelViewSet):
     filterset_class = ContaminationFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
-    def filtered_list(self, request):
-        """Filters the Intervention objects to return only those belonging to
-        the authenticated user. This function is used by the custom
-        router in as the default List return for Get requests.
-
-        Args:
-            request (Request): a request object
-
-        Returns:
-            Response: serialized JSON data
-        """
-        filtered_queryset = Contamination.objects.filter(
-            hive__beeyard__beekeeper=request.user
+    def get_queryset(self, *args, **kwargs):
+        return Contamination.objects.all().filter(
+            hive__beeyard__beekeeper=self.request.user
         )
-        filtered_queryset = self.filter_queryset(filtered_queryset)
-        serializer = self.get_serializer(filtered_queryset, many=True)
-        return Response(serializer.data)
 
 
 ##### Template Views #####
