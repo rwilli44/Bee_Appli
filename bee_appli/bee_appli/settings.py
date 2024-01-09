@@ -156,3 +156,9 @@ AUTHENTICATION_BACKENDS = [
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+# Pagination settings
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "public_api.pagination.PublicAPIPagination"
+}
