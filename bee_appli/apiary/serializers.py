@@ -60,7 +60,7 @@ class InterventionSerializer(serializers.ModelSerializer):
         fields = [
             "intervention_type",
             "date",
-            "hive_affected_id",
+            "hive_affected",
             "content_type",
             "object_id",
             "content_object",

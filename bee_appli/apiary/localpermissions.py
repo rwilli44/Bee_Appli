@@ -26,7 +26,7 @@ class IsKeeper(BasePermission):
         if isinstance(obj, BeeYard):
             return obj.beekeeper == request.user
         elif isinstance(obj, Intervention):
-            hive = Hive.objects.get(id=obj.hive_affected_id)
+            hive = Hive.objects.get(id=obj.hive_affected)
             return hive.beeyard.beekeeper == request.user
         elif isinstance(obj, Hive):
             return obj.beeyard.beekeeper == request.user
