@@ -160,5 +160,5 @@ AUTHENTICATION_BACKENDS = [
 # Pagination settings
 
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "public_api.pagination.PublicAPIPagination"
+    "DEFAULT_PAGINATION_CLASS": "public_api.paginaton.PublicAPIPagination"
 }
