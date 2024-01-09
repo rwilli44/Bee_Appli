@@ -4,12 +4,19 @@ from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
+
 
 # Local imports
-from .models import BeeYard, Hive, Intervention
+from .models import BeeYard, Contamination, Hive, Intervention
 from .localpermissions import IsKeeperOrReadOnly, IsKeeper
-from .serializers import BeeYardSerializer, HiveSerializer, InterventionSerializer
-
+from .serializers import (
+    BeeYardSerializer,
+    ContaminationSerializer,
+    HiveSerializer,
+    InterventionSerializer,
+)
+from .filters import BeeYardFilter, ContaminationFilter, HiveFilter, InterventionFilter
 
 ##### Views for Beekeeper Access to Data via API #####
 
@@ -23,6 +30,8 @@ class BeeYardViewSet(viewsets.ModelViewSet):
         # the authenticated beekeeper
         IsKeeper,
     ]
+    filterset_class = BeeYardFilter
+    filter_backends = (filters.DjangoFilterBackend,)
 
     def filtered_list(self, request):
         """Filters the BeeYard objects to return only those belonging to
@@ -36,6 +45,7 @@ class BeeYardViewSet(viewsets.ModelViewSet):
             Response: serialized JSON data
         """
         filtered_queryset = BeeYard.objects.filter(beekeeper=request.user)
+        filtered_queryset = self.filter_queryset(filtered_queryset)
         serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
 
@@ -49,6 +59,8 @@ class HiveViewSet(viewsets.ModelViewSet):
         # the authenticated beekeeper
         IsKeeper,
     ]
+    filterset_class = HiveFilter
+    filter_backends = (filters.DjangoFilterBackend,)
 
     def filtered_list(self, request):
         """Filters the Hive objects to return only those belonging to
@@ -62,6 +74,7 @@ class HiveViewSet(viewsets.ModelViewSet):
             Response: serialized JSON data
         """
         filtered_queryset = Hive.objects.filter(beeyard__beekeeper=request.user)
+        filtered_queryset = self.filter_queryset(filtered_queryset)
         serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
 
@@ -75,6 +88,8 @@ class InterventionViewSet(viewsets.ModelViewSet):
         # the authenticated beekeeper
         IsKeeper,
     ]
+    filterset_class = InterventionFilter
+    filter_backends = (filters.DjangoFilterBackend,)
 
     def filtered_list(self, request):
         """Filters the Intervention objects to return only those belonging to
@@ -90,6 +105,38 @@ class InterventionViewSet(viewsets.ModelViewSet):
         filtered_queryset = Intervention.objects.filter(
             hive_affected__beeyard__beekeeper=request.user
         )
+        filtered_queryset = self.filter_queryset(filtered_queryset)
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response(serializer.data)
+
+
+class ContaminationViewSet(viewsets.ModelViewSet):
+    queryset = Contamination.objects.all()
+    serializer_class = ContaminationSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # Only allows access to the beeyards of
+        # the authenticated beekeeper
+        IsKeeper,
+    ]
+    filterset_class = ContaminationFilter
+    filter_backends = (filters.DjangoFilterBackend,)
+
+    def filtered_list(self, request):
+        """Filters the Intervention objects to return only those belonging to
+        the authenticated user. This function is used by the custom
+        router in as the default List return for Get requests.
+
+        Args:
+            request (Request): a request object
+
+        Returns:
+            Response: serialized JSON data
+        """
+        filtered_queryset = Contamination.objects.filter(
+            hive__beeyard__beekeeper=request.user
+        )
+        filtered_queryset = self.filter_queryset(filtered_queryset)
         serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
 

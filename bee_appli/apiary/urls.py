@@ -47,3 +47,6 @@ router = CustomRouter()
 router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
 router.register(r"hives", views.HiveViewSet, basename="hives")
 router.register(r"interventions", views.InterventionViewSet, basename="interventions")
+router.register(
+    r"contaminations", views.ContaminationViewSet, basename="contaminations"
+)

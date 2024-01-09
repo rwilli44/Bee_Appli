@@ -5,7 +5,7 @@ from django.db.models import Q
 
 
 class HiveFilter(filters.FilterSet):
-    """Filter for searching hives"""
+    """Filter for searching hives in the public API"""
 
     beeyard__beekeeper = filters.CharFilter(method="find_keeper")
 
@@ -38,7 +38,7 @@ class HiveFilter(filters.FilterSet):
 
 
 class BeeYardFilter(filters.FilterSet):
-    """Filter for searching hives"""
+    """Filter for searching beeyards in the public API"""
 
     beekeeper = filters.CharFilter(method="find_keeper")
 
@@ -69,8 +69,8 @@ class BeeYardFilter(filters.FilterSet):
 
 class PublicContactFilter(filters.FilterSet):
     """Filter for seraching beekeeper contact information.
-    Only returns details of beeekeeper's who have agreed to
-    make their information public."""
+    in the public API. Only returns details of beeekeeper's
+    who have agreed to make their information public."""
 
     first_name = filters.CharFilter(
         field_name="public_beekeeper_info__first_name", lookup_expr="icontains"
