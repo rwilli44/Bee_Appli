@@ -3,47 +3,16 @@ from django.urls import include, path
 from rest_framework import routers
 
 # Local imports
-from apiary import views
+from apiary.urls import router
+from public_api.urls import public_router
 from .settings import DEBUG
-
-
-# Create a custom router to set the default list view to only show
-# beeyards/hives/interventions that belong to the authenticated beekeeper
-class CustomRouter(routers.DefaultRouter):
-    routes = [
-        # Define a custom route for the list action
-        routers.Route(
-            url=r"^{prefix}{trailing_slash}$",
-            mapping={"get": "filtered_list", "post": "create"},
-            name="{basename}-filtered-list",
-            detail=False,
-            initkwargs={"suffix": "List"},
-        ),
-        routers.Route(
-            url=r"^{prefix}/{lookup}{trailing_slash}$",
-            mapping={
-                "get": "retrieve",
-                "put": "update",
-                "patch": "partial_update",
-                "delete": "destroy",
-            },
-            name="{basename}-detail",
-            detail=True,
-            initkwargs={"suffix": "Detail"},
-        ),
-    ]
-
-
-# Register the viewsets with the custom router
-router = CustomRouter()
-router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
-router.register(r"hives", views.HiveViewSet, basename="hives")
-router.register(r"interventions", views.InterventionViewSet, basename="interventions")
 
 
 urlpatterns = [
     # Custom router for beekeper API
     path("", include(router.urls)),
+    # Custom router for public API
+    path("public_api/", include(public_router.urls)),
     # Honeypot fake admin login
     path("admin/", include("admin_honeypot.urls", namespace="admin_honeypot")),
     # Actual admin login
