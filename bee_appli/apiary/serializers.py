@@ -23,7 +23,15 @@ class ContaminationSerializer(serializers.ModelSerializer):
 class HiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hive
-        fields = ["status", "species", "date_updated", "beeyard_id", "queen_year", "id"]
+        fields = [
+            "name",
+            "status",
+            "species",
+            "date_updated",
+            "beeyard_id",
+            "queen_year",
+            "id",
+        ]
 
 
 class BeeYardSerializer(serializers.ModelSerializer):

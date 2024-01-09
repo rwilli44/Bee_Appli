@@ -52,7 +52,9 @@ class Hive(models.Model):
         (BUCKB, "Buckfast bee"),
     ]
     species = models.CharField(choices=BEE_SPECIES, help_text="Type of bees")
-
+    name = models.CharField(
+        max_length=100, help_text="A Name to Identify the Hive Easily"
+    )
     date_updated = models.DateField(
         auto_now=True, help_text="Date the status was updated"
     )
@@ -67,7 +69,7 @@ class Hive(models.Model):
     parent_hives = GenericRelation("Intervention")
 
     def __str__(self):
-        return f"Hive {self.pk} in {self.beeyard.name} Bee Yard "
+        return f"Hive {self.name} in {self.beeyard.name} Bee Yard "
 
     class Meta:
         verbose_name = "Hive"

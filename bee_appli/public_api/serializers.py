@@ -17,6 +17,7 @@ class HiveSerializerReadOnly(serializers.ModelSerializer):
     class Meta:
         model = Hive
         fields = [
+            "name",
             "status",
             "species",
             "date_updated",
@@ -27,6 +28,7 @@ class HiveSerializerReadOnly(serializers.ModelSerializer):
         ]
 
         read_only_fields = [
+            "name",
             "status",
             "species",
             "date_updated",

@@ -165,15 +165,7 @@ def show_beeyards(request):
         hive_query = Hive.objects.filter(beeyard=beeyard.id).all()
         hives = []
         for hive in hive_query:
-            hives.append(
-                {
-                    "id": hive.pk,
-                    "status": hive.status,
-                    "species": hive.species,
-                    "date_updated": hive.date_updated,
-                    "queen_year": hive.queen_year,
-                }
-            )
+            hives.append(hive.__dict__)
         data.append({"beeyard_name": beeyard.name, "hives": hives})
 
     # Create the json type object to pass the results to the template
@@ -226,6 +218,7 @@ def show_interventions(request):
     # Query and return a view of the hive's interventions
     intervention_query = Intervention.objects.filter(hive_affected=hive_id).all()
     interventions = []
+    hive = intervention_query[0].hive_affected
     for intervention in intervention_query:
         intervention_data = {
             "intervention_type": intervention.intervention_type,
@@ -243,5 +236,5 @@ def show_interventions(request):
         elif intervention.intervention_type == "Artificial Swarming":
             intervention_data["child_hive"] = intervention.content_object.__str__
         interventions.append(intervention_data)
-    context = {"hive": hive_id, "interventions": interventions}
+    context = {"hive": hive.name, "interventions": interventions}
     return render(request, "interventions.html", context)
