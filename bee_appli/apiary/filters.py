@@ -8,7 +8,6 @@ from .models import (
     Treatment,
     Contamination,
 )
-from django.db.models import Q
 
 
 class ContaminationFilter(filters.FilterSet):
