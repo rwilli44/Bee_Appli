@@ -13,15 +13,16 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class BeeYard(models.Model):
     """Model to store the details of a collection of hives in a specific location"""
 
-    # add location later
     name = models.CharField(
         max_length=100, help_text="A Name to Identify the Bee Yard Easily"
     )
+
     beekeeper = models.ForeignKey(
         User,
         on_delete=SET_NULL,
         null=True,
         related_name="beeyards",
+        help_text="The owner of the beeyard.",
     )
 
     def __str__(self):
@@ -38,11 +39,12 @@ class Hive(models.Model):
     HIVE_STATUS = [(ACTIVE, "Active"), (PENDING, "Pending"), (DESTROYED, "Destroyed")]
     status = models.CharField(choices=HIVE_STATUS, help_text="Status of the beehive")
 
-    BLACB = "Black bee"
-    ITALB = "Italian bee"
-    CAUCB = "Caucasian bee"
-    CARNB = "Carnolian bee"
-    BUCKB = "Buckfast bee"
+    # Unique identifiers that should remain CONSTANT
+    BLACB = "black_bee"
+    ITALB = "italian_bee"
+    CAUCB = "caucasian_bee"
+    CARNB = "carnolian_bee"
+    BUCKB = "buckfast_bee"
 
     BEE_SPECIES = [
         (BLACB, "Black bee"),
@@ -59,19 +61,28 @@ class Hive(models.Model):
         auto_now=True, help_text="Date the status was updated"
     )
     beeyard = models.ForeignKey(
-        "apiary.models.BeeYard", on_delete=SET_NULL, related_name="hives", null=True
+        "BeeYard",
+        on_delete=SET_NULL,
+        related_name="hives",
+        null=True,
+        help_text="The beeyard where the hive is located.",
     )
     CURRENT_YEAR = datetime.date.today().year
     queen_year = models.IntegerField(
         default=CURRENT_YEAR,
         validators=[MinValueValidator(2000), MaxValueValidator(2040)],
+        help_text="The year the queen bee was born.",
     )
-    parent_hives = GenericRelation("Intervention")
+    parent_hives = GenericRelation(
+        "Intervention",
+        help_text="Stores any parent hives in cases of artificial swarming.",
+    )
 
     def __str__(self):
         return f"Hive {self.name} in {self.beeyard.name} Bee Yard "
 
     class Meta:
+        # Necessary for showing properly in intervention admin
         verbose_name = "Hive"
 
 
@@ -81,13 +92,14 @@ class Intervention(models.Model):
     super installation, syrup distribution, and treatments. Uses a generic
     foreign key for interventions which require more details."""
 
-    ARTIFICIAL_SWARMING = "Artificial Swarming"
-    DESTRUCTION_QUEEN_CELLS = "Destruction Queen Cells"
-    HARVEST = "Harvest"
-    HEALTH_CHECK = "Health Check"
-    SUPER_INSTALLATION = "Super Installation"
-    SYRUP_DISTRIBUTION = "Syrup Distribution"
-    TREATMENT = "Treatment"
+    # Unique identifiers that should remain CONSTANT
+    ARTIFICIAL_SWARMING = "artificial_swarming"
+    DESTRUCTION_QUEEN_CELLS = "destruction_queen_cells"
+    HARVEST = "harvest"
+    HEALTH_CHECK = "health_check"
+    SUPER_INSTALLATION = "super_installation"
+    SYRUP_DISTRIBUTION = "syrup_distribution"
+    TREATMENT = "treatment"
 
     INTERVENTION_TYPES = (
         (ARTIFICIAL_SWARMING, "Artificial Swarming"),
@@ -133,6 +145,7 @@ class Intervention(models.Model):
     object_id = models.PositiveIntegerField(
         blank=True,
         null=True,
+        help_text="The ID of the FK object needed to complete the intervention information..",
     )
     # The Generic Foreign Key which can refer to a hive (artificial swarming),
     # quantity, or treatment if the intervention type requires this information
@@ -152,6 +165,7 @@ class Harvest(models.Model):
         return f"{self.quantity} kilograms"
 
     class Meta:
+        # Necessary for showing properly in intervention admin
         verbose_name = "Harvest"
 
 
@@ -159,16 +173,17 @@ class SyrupDistribution(models.Model):
     """Model to store quantities  and types of syrup distributed. Linked to
     specific interventions via a generic foreign key relationship."""
 
-    NECTAR = "Nectar"
-    CANE_SUGAR = "Cane Sugar"
-    WHITE_SUGAR = "White Sugar"
-    RAW_SUGAR = "Raw Sugar"
+    # Unique identifiers that should remain CONSTANT
+    NECTAR = "nectar"
+    CANE_SUGAR = "cane_sugar"
+    WHITE_SUGAR = "white_sugar"
+    RAW_SUGAR = "raw_sugar"
 
     SYRUP_TYPES = (
-        (NECTAR, "Nectar"),
-        (CANE_SUGAR, "Cane Sugar"),
-        (WHITE_SUGAR, "White Sugar"),
-        (RAW_SUGAR, "Raw Sugar"),
+        (NECTAR, "nectar"),
+        (CANE_SUGAR, "cane_sugar"),
+        (WHITE_SUGAR, "white_sugar"),
+        (RAW_SUGAR, "raw_sugar"),
     )
     syrup_type = models.CharField(
         choices=SYRUP_TYPES,
@@ -180,6 +195,7 @@ class SyrupDistribution(models.Model):
         return f"{self.quantity} liters"
 
     class Meta:
+        # Necessary for showing properly in intervention admin
         verbose_name = "Syrup Distribution"
 
 
@@ -198,14 +214,16 @@ class Treatment(models.Model):
         return f"{self.treatment_type}"
 
     class Meta:
+        # Necessary for showing properly in intervention admin
         verbose_name = "Treatment"
 
 
 class Contamination(models.Model):
     """A model to store data about hive contaminations."""
 
-    PARASITE = "Parasite"
-    ILLNESS = "Illness"
+    # Unique identifiers that should remain CONSTANT
+    PARASITE = "parasite"
+    ILLNESS = "illness"
 
     CONTAMINATION_TYPES = (
         (PARASITE, "Parasite"),
@@ -218,5 +236,8 @@ class Contamination(models.Model):
 
     date = models.DateField(auto_now=True, help_text="Date the contamination was found")
     hive = models.ForeignKey(
-        Hive, on_delete=models.CASCADE, related_name="contaminations"
+        Hive,
+        on_delete=models.CASCADE,
+        related_name="contaminations",
+        help_text="The infected hive.",
     )
