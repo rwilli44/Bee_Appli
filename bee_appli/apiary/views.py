@@ -36,12 +36,15 @@ class BeeYardViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         return BeeYard.objects.all().filter(beekeeper=self.request.user)
 
-    @action(detail=False, methods=["GET"])
-    def health_check_all_hives(self, request):
-        print("Entering health_check_all_hives method")
-        # ... other code
-        print("Exiting health_check_all_hives method")
-
+    @action(detail=True, methods=["POST"])
+    def health_check_all_hives(self, request, pk):
+        beeyard = BeeYard.objects.get(id=pk)
+        hives = Hive.objects.filter(beeyard=beeyard)
+        for hive in hives:
+            intervention = Intervention.objects.create(
+                intervention_type="Health Check", hive_affected=hive
+            )
+        # FIX TO RETURN THE CORRECT RESPONSE
         return Response({"message": "Health check for all hives"})
 
 

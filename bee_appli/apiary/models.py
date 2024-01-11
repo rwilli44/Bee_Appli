@@ -59,7 +59,7 @@ class Hive(models.Model):
         auto_now=True, help_text="Date the status was updated"
     )
     beeyard = models.ForeignKey(
-        BeeYard, on_delete=SET_NULL, related_name="hives", null=True
+        "apiary.models.BeeYard", on_delete=SET_NULL, related_name="hives", null=True
     )
     CURRENT_YEAR = datetime.date.today().year
     queen_year = models.IntegerField(

@@ -16,7 +16,7 @@ class CustomRouter(routers.DefaultRouter):
         return PublicAPIView.as_view()
 
 
-public_router = CustomRouter()
+public_router = routers.DefaultRouter()
 
 public_router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
 public_router.register(r"hives", views.HiveViewSet, basename="hives")

@@ -43,7 +43,9 @@ class BeeYardFilter(filters.FilterSet):
 
     beekeeper = filters.CharFilter(method="find_keeper")
 
+    # WHYYYY IS THIS NOT WORKING
     def find_keeper(self, queryset, name, value):
+        print("ttttesssdf")
         # Exclude keepers who have not agreed to share their contact info
         queryset = queryset.exclude(beekeeper__allows_public_contact=None)
         names = value.split()

@@ -7,12 +7,14 @@ from apiary.urls import router
 from public_api.urls import public_router
 from .settings import DEBUG
 
-
 urlpatterns = [
     # Custom router for beekeper API
-    path("", include(router.urls)),
+    path("", include((router.urls, "apiary"), namespace="apiary")),
     # Custom router for public API
-    path("public_api/", include(public_router.urls)),
+    path(
+        "public_api/",
+        include((public_router.urls, "public_api"), namespace="public_api"),
+    ),
     # Honeypot fake admin login
     path("admin/", include("admin_honeypot.urls", namespace="admin_honeypot")),
     # Actual admin login
