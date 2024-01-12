@@ -21,10 +21,10 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         # Create a superuser who can login to the admin panel
-        # admin_user = User.objects.create_user(username="admin", password="admin")
-        # admin_user.is_staff = True
-        # admin_user.is_superuser = True
-        # admin_user.save()
+        admin_user = User.objects.create_user(username="admin", password="admin")
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.save()
 
         # Constants to use for auto-creating objects
         USERS = [
