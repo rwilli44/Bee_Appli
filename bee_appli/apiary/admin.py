@@ -13,6 +13,8 @@ from .models import (
     Treatment,
 )
 
+admin.site.site_header = "Bee Appli by Rachel WILLIAMS"
+
 
 # Inline model to be displayed in Hive, Quantity and Treatment admins
 class InterventionInline(GenericTabularInline):
