@@ -21,10 +21,10 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         # Create a superuser who can login to the admin panel
-        admin_user = User.objects.create_user(username="admin", password="admin")
-        admin_user.is_staff = True
-        admin_user.is_superuser = True
-        admin_user.save()
+        # admin_user = User.objects.create_user(username="admin", password="admin")
+        # admin_user.is_staff = True
+        # admin_user.is_superuser = True
+        # admin_user.save()
 
         # Constants to use for auto-creating objects
         USERS = [
@@ -132,7 +132,7 @@ class Command(BaseCommand):
             hive = hives[i]
             syrup = SyrupDistribution.objects.create(
                 syrup_type=syrup_to_use,
-                quantity=random.randint(1, 4) / 4,
+                quantity=round(random.randint(1, 4) / 4, 2),
             )
             Intervention.objects.create(
                 intervention_type="syrup_distribution",
@@ -141,14 +141,18 @@ class Command(BaseCommand):
             )
 
         for hive in hives:
-            harvest = Harvest.objects.create(quantity=random.randint(1, 5) / 7)
+            harvest = Harvest.objects.create(
+                quantity=round(random.randint(1, 5) / 7, 2)
+            )
             Intervention.objects.create(
                 intervention_type="harvest",
                 hive_affected=hive,
                 content_object=harvest,
             )
 
-            harvest = Harvest.objects.create(quantity=random.randint(1, 5) / 7)
+            harvest = Harvest.objects.create(
+                quantity=round(random.randint(1, 5) / 7, 2)
+            )
             Intervention.objects.create(
                 intervention_type="harvest",
                 hive_affected=hive,
