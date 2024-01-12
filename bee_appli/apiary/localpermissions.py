@@ -2,7 +2,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 # Local imports
-from .models import BeeYard, Hive, Intervention
+from .models import BeeYard, Contamination, Hive, Intervention
 
 
 class IsKeeperOrReadOnly(BasePermission):
@@ -30,4 +30,6 @@ class IsKeeper(BasePermission):
             return hive.beeyard.beekeeper == request.user
         elif isinstance(obj, Hive):
             return obj.beeyard.beekeeper == request.user
+        elif isinstance(obj, Contamination):
+            return obj.hive.beeyard.beekeeper == request.user
         return False

@@ -5,13 +5,7 @@
   <strong> {{intervention.intervention_type}} </strong>
   {{intervention.date}}
 </p>
-<ul>
-  {% for key, value in intervention.items %} 
-  {% if key == "date" or key == "intervention_type" %}
-  {% else%}
-  <li>{{key}}: {{value}}</li>
-  {%endif%} {%endfor %}
-</ul>
+
 {%endfor %}
 <p><a href="/apiary/">Return to bee yard list</a></p>
 {% endblock %}

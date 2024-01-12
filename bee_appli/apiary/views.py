@@ -1,6 +1,9 @@
 # Third-party imports
+from django.contrib import messages
 from django.contrib.auth.models import AnonymousUser
-from django.shortcuts import render
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import logout
+from django.shortcuts import redirect, render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -17,6 +20,17 @@ from .serializers import (
     InterventionSerializer,
 )
 from .filters import BeeYardFilter, ContaminationFilter, HiveFilter, InterventionFilter
+
+
+# custom 404 view
+def custom_404(request, exception):
+    return render(request, "/templates/404.html", status=404)
+
+
+# custom 401 view
+def custom_401(request, exception):
+    return render(request, "/templates/401.html", status=401)
+
 
 ##### Views for Beekeeper Access to Data via API #####
 
@@ -40,12 +54,16 @@ class BeeYardViewSet(viewsets.ModelViewSet):
     def health_check_all_hives(self, request, pk):
         beeyard = BeeYard.objects.get(id=pk)
         hives = Hive.objects.filter(beeyard=beeyard)
+        interventions = []
         for hive in hives:
             intervention = Intervention.objects.create(
                 intervention_type="Health Check", hive_affected=hive
             )
-        # FIX TO RETURN THE CORRECT RESPONSE
-        return Response({"message": "Health check for all hives"})
+            intervention = InterventionSerializer(intervention)
+            interventions.append(intervention.data)
+
+        response_data = {"interventions": interventions}
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class HiveViewSet(viewsets.ModelViewSet):
@@ -101,6 +119,18 @@ class ContaminationViewSet(viewsets.ModelViewSet):
 
 
 ##### Template Views #####
+class LoginInterfaceView(LoginView):
+    """Login view used to test axes, does not lead the user anywhere yet"""
+
+    template_name = "login.html"
+
+
+def logout_request(request):
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect("/apiary/login")
+
+
 def show_beeyards(request):
     """Returns a view of all the bee yards and hives of the connected user."""
     # If the user is not connected, return a 401 page
@@ -153,6 +183,7 @@ def show_interventions(request):
             "404.html",
             status=status.HTTP_404_NOT_FOUND,
         )
+
     # Query the given hive ID
     hive_query = Hive.objects.filter(id=hive_id).values()
 

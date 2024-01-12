@@ -17,7 +17,7 @@ from .models import (
 class ContaminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contamination
-        fields = ["type", "date", "hive"]
+        fields = ["id", "type", "date", "hive"]
 
 
 class HiveSerializer(serializers.ModelSerializer):

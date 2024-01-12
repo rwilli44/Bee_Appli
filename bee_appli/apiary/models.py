@@ -203,8 +203,18 @@ class Treatment(models.Model):
     """Model to store details of treatment interventions which links
     to the Intervention model via a generic foreign key relationship."""
 
+    # Unique identifiers that should remain CONSTANT
+    ANTIFUNGAL = "antifungal"
+    APIVAR = "apivar"
+    ACIDE = "oxalic_acid"
+
+    TREATMENTS = (
+        (ANTIFUNGAL, "Antifungal"),
+        (APIVAR, "Apivar"),
+        (ACIDE, "Oxalic Acid"),
+    )
     treatment_type = models.CharField(
-        max_length=100,
+        choices=TREATMENTS,
         unique=True,
         help_text="Name of the treatment applied to the hive",
     )

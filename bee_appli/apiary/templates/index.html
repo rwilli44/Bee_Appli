@@ -19,4 +19,6 @@
   </li>
 </ul>
 {%endfor %} {%endfor %} {% else %}
-<h2> Hi, {{user}}. You don't currently have any bee yards. {% endif %} {% endblock %}
+<h2> Hi, {{user}}. You don't currently have any bee yards. {% endif %} 
+  <p><a href="{% url 'logout' %}">Log Out</a></p>
+  {% endblock %}
