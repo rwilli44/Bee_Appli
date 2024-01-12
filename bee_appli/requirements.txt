@@ -6,6 +6,8 @@
 #
 asgiref==3.7.2
     # via django
+coverage==7.4.0
+    # via -r requirements.in
 django==5.0.1
     # via
     #   -r requirements.in
