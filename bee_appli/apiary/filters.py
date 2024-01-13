@@ -1,19 +1,21 @@
+# Third-party imports
 from django_filters import rest_framework as filters
+
+# Local imports
 from .models import (
     BeeYard,
-    Hive,
+    Contamination,
     Harvest,
+    Hive,
     Intervention,
     SyrupDistribution,
     Treatment,
-    Contamination,
 )
 
 
 class ContaminationFilter(filters.FilterSet):
     """Class for a beekeper to filter their contaminations"""
 
-    # addhive
     class Meta:
         model = Contamination
         fields = {
@@ -33,6 +35,8 @@ class BeeYardFilter(filters.FilterSet):
 
 
 class HiveFilter(filters.FilterSet):
+    """Class for a beekeeper to filter their hives"""
+
     class Meta:
         model = Hive
         fields = {
@@ -47,15 +51,27 @@ class HiveFilter(filters.FilterSet):
 
 
 class InterventionFilter(filters.FilterSet):
+    """Class for a beekeeper to filter their interventions"""
+
+    # Use a function to filter interventions by treatment type
     treatment_type = filters.CharFilter(method="find_treatment_type")
 
     def find_treatment_type(self, queryset, name, value):
+        """Function to filter interventions and return those which are
+        treatments with a type which includes the search term."""
+        # To save the results
         matching_interventions = []
         for result in queryset:
+            # Can possibly be refactored to be done with exclude
+            # Filter only interventions which are treatments
             if hasattr(result.content_object, "treatment_type"):
                 matching_interventions.append(result.object_id)
+        # Find all treatment objects which match the interventions found
         treatment_query = Treatment.objects.filter(pk__in=matching_interventions)
+        # Filter these for only the treatments matching the search term
         treatment_query = treatment_query.filter(treatment_type__icontains=value)
+        # This seems very convoluted and I should definitely redo it when I've slept
+        # better. Goal is to return a queryset of matching intervention objects.
         treatment_matches = []
         for treatment in treatment_query:
             treatment_matches.append(treatment.id)
@@ -66,6 +82,8 @@ class InterventionFilter(filters.FilterSet):
     syrup_type = filters.CharFilter(method="find_syrup_type")
 
     def find_syrup_type(self, queryset, name, value):
+        """Function to filter interventions and return those which are
+        syrup distributions with a type which includes the search term."""
         matching_interventions = []
         for result in queryset:
             if hasattr(result.content_object, "syrup_type"):
@@ -82,6 +100,9 @@ class InterventionFilter(filters.FilterSet):
     harvest_lt = filters.CharFilter(method="find_harvest_lt")
 
     def find_harvest_lt(self, queryset, name, value):
+        """Function to filter interventions and return those which are
+        harvests with less than the given amount of honey harvested."""
+
         matching_interventions = []
         for result in queryset:
             if hasattr(result.content_object, "quantity") and isinstance(
@@ -100,6 +121,9 @@ class InterventionFilter(filters.FilterSet):
     harvest_gt = filters.CharFilter(method="find_harvest_gt")
 
     def find_harvest_gt(self, queryset, name, value):
+        """Function to filter interventions and return those which are
+        harvests with more than the given amount of honey harvested."""
+
         matching_interventions = []
         for result in queryset:
             if hasattr(result.content_object, "quantity") and isinstance(

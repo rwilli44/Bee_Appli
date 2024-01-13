@@ -6,9 +6,9 @@ from rest_framework import serializers
 from .models import (
     BeeYard,
     Contamination,
+    Harvest,
     Hive,
     Intervention,
-    Harvest,
     SyrupDistribution,
     Treatment,
 )
@@ -61,6 +61,8 @@ class ContentObjectRelatedField(serializers.RelatedField):
 
 
 class InterventionSerializer(serializers.ModelSerializer):
+    # Include the details of the object the intervention relates to (hive,
+    # harves, treatment, etc.)
     content_object = ContentObjectRelatedField(read_only=True)
 
     class Meta:

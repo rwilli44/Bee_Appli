@@ -1,13 +1,15 @@
 # Third-party imports
-from django.urls import path
 from django.contrib.auth.models import AnonymousUser
+from django.urls import path
 from rest_framework import routers
 
 # Local imports
 from . import views
 
-
+# Create a router to organize API views
 router = routers.DefaultRouter()
+
+# Register API views to the router
 router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
 router.register(r"hives", views.HiveViewSet, basename="hives")
 router.register(r"interventions", views.InterventionViewSet, basename="interventions")

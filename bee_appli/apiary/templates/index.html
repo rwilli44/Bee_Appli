@@ -1,9 +1,10 @@
 {% extends "base.html" %} {% block content %} 
 {% if beeyard_data %}
 <h2> Hi, {{user}}, here are your hives!</h2>
+{% comment %} Display each bee yard {% endcomment %}
 {% for beeyard in beeyard_data %}
 <h3>{{beeyard.beeyard_name}} Bee Yard</h2>
-  
+{% comment %} Display each hive in the beeyard {% endcomment %}
 {% for hive in beeyard.hives %}
 
 <p><strong>Hive: {{hive.name}} </strong></p>
@@ -19,6 +20,7 @@
   </li>
 </ul>
 {%endfor %} {%endfor %} {% else %}
+{% comment %} If the user is a beekeeper but has no current beeyards, display an alternate message. {% endcomment %}
 <h2> Hi, {{user}}. You don't currently have any bee yards. {% endif %} 
   <p><a href="{% url 'logout' %}">Log Out</a></p>
   {% endblock %}
