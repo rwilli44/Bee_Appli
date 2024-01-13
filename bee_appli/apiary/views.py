@@ -237,7 +237,7 @@ def show_interventions(request):
             "intervention_type": intervention.intervention_type,
             "date": intervention.date,
         }
-        # Doesn't seem to be working, goal was to show the details but no time to debug
+        # Add details for interventions with a generic foreign key
         if intervention.intervention_type == "syrup_distribution":
             intervention_data["quantity"] = intervention.content_object.quantity
             intervention_data["units"] = "liters"

@@ -1,22 +1,27 @@
-from django.contrib import admin
-from django.urls import include, path
+# Third-party imports
 from rest_framework import routers
-from .views import PublicAPIView
 
 # Local imports
 from public_api import views
 
 
-# Create the Public API Router
-class CustomRouter(routers.DefaultRouter):
-    """Creates a custom view for the API so that its title shows as
-    Public API"""
+# The title of this class will serve as the API title and the docstring will
+# appear as the description replacing API Root and Default info.
+class BeeAppliPublicAPI(routers.APIRootView):
+    """
+    Public access to details on beeyards and hives. Contact information
+    available for beekeepers who have accepted to share it.
+    """
 
-    def get_api_root_view(self, api_urls=None):
-        return PublicAPIView.as_view()
+    pass
 
 
-public_router = routers.DefaultRouter()
+class DocumentedPublicRouter(routers.DefaultRouter):
+    APIRootView = BeeAppliPublicAPI
+
+
+# Router for the public API
+public_router = DocumentedPublicRouter()
 
 public_router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
 public_router.register(r"hives", views.HiveViewSet, basename="hives")

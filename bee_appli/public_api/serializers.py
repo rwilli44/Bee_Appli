@@ -7,11 +7,14 @@ from apiary.models import (
     BeeYard,
     Hive,
 )
-
 from .models import PublicContact
 
 
 class HiveSerializerReadOnly(serializers.ModelSerializer):
+    """Serializer for read-only public version of hive information.
+    Unlike the private API, this one includes details on the beekeeper
+    if the beekeeper has accepted sharing their information with the public."""
+
     beekeeper_detail = serializers.SerializerMethodField()
 
     class Meta:
@@ -39,11 +42,15 @@ class HiveSerializerReadOnly(serializers.ModelSerializer):
         ]
 
     def get_beekeeper_detail(self, obj):
+        """Function to get contact details for beeekeepers which replaces
+        data with 'Not Authorized' for any keepers who have not agreed to
+        share their information publicly."""
+
         if hasattr(obj.beeyard.beekeeper, "allows_public_contact"):
             keeper = PublicContact.objects.get(
                 public_beekeeper_info=obj.beeyard.beekeeper
             )
-            beekeeper_detail = PublicContactSerializer(keeper)
+            beekeeper_detail = PublicContactSerializerReadOnly(keeper)
             return beekeeper_detail.data
         else:
             anonymous = {
@@ -55,13 +62,18 @@ class HiveSerializerReadOnly(serializers.ModelSerializer):
 
 
 class UserSerializerReadOnly(serializers.ModelSerializer):
+    """A serializer to validate beekeeper data and only allower read-only."""
+
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
         read_only_fields = ["first_name", "last_name", "email"]
 
 
-class PublicContactSerializer(serializers.ModelSerializer):
+class PublicContactSerializerReadOnly(serializers.ModelSerializer):
+    """Uses the UserSerializerReadOnly to validate contact details for
+    keepers who have agreed to share their contact information."""
+
     public_beekeeper_info_details = UserSerializerReadOnly(
         source="public_beekeeper_info", read_only=True
     )
@@ -73,6 +85,11 @@ class PublicContactSerializer(serializers.ModelSerializer):
 
 
 class BeeYardSerializerReadOnly(serializers.ModelSerializer):
+    """Serializer that allows for read only data on beeyards and includes the details
+    of the hive and the keeper while withholding information on keepers who have not
+    agreed to make their information public.
+    """
+
     hives_detailed = HiveSerializerReadOnly(source="hives", read_only=True, many=True)
     beekeeper_detail = serializers.SerializerMethodField()
 
@@ -88,9 +105,13 @@ class BeeYardSerializerReadOnly(serializers.ModelSerializer):
         ]
 
     def get_beekeeper_detail(self, obj):
+        """Function to get contact details for beeekeepers which replaces
+        data with 'Not Authorized' for any keepers who have not agreed to
+        share their information publicly."""
+
         if hasattr(obj.beekeeper, "allows_public_contact"):
             keeper = PublicContact.objects.get(public_beekeeper_info=obj.beekeeper)
-            beekeeper_detail = PublicContactSerializer(keeper)
+            beekeeper_detail = PublicContactSerializerReadOnly(keeper)
             return beekeeper_detail.data
         else:
             anonymous = {

@@ -1,3 +1,4 @@
+# Third-party imports
 from django.contrib import admin
 from django.urls import include, path
 
@@ -16,7 +17,7 @@ urlpatterns = [
     ),
     # Honeypot fake admin login
     path("admin/", include("admin_honeypot.urls", namespace="admin_honeypot")),
-    # Actual admin login
+    # Real admin login
     path("apiaryadminaccessportal/", admin.site.urls),
     # URLs for template-based views
     path("apiary/", include("apiary.urls")),

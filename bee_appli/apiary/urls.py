@@ -6,8 +6,25 @@ from rest_framework import routers
 # Local imports
 from . import views
 
+
+# The title of this class will serve as the API title and the docstring will
+# appear as the description replacing API Root and Default info.
+class BeeAppliPrivateApiaryAPI(routers.APIRootView):
+    """
+    Private API for access to details on beeyards, hives, interventions and
+    contaminations. Information is only available to authenticated users and
+    only allows access to their one beeyard/hive information.
+    """
+
+    pass
+
+
+class DocumentedPrivateRouter(routers.DefaultRouter):
+    APIRootView = BeeAppliPrivateApiaryAPI
+
+
 # Create a router to organize API views
-router = routers.DefaultRouter()
+router = DocumentedPrivateRouter()
 
 # Register API views to the router
 router.register(r"beeyards", views.BeeYardViewSet, basename="beeyards")
