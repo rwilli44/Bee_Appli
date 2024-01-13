@@ -203,4 +203,4 @@ class Command(BaseCommand):
                     content_object=random_hive,
                 )
         # Show in the terminal when the data is successfully imported
-        print("Data has been imported successfully")
+        self.stdout.write(self.style.SUCCESS("Data has been imported successfully"))
