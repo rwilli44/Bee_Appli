@@ -1,18 +1,18 @@
 # Third-party imports
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.views import LoginView
-from django.contrib.auth import logout
 from django.shortcuts import redirect, render
+from django_filters import rest_framework as filters
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters import rest_framework as filters
 
 
 # Local imports
 from .models import BeeYard, Contamination, Hive, Intervention
-from .localpermissions import IsKeeperOrReadOnly, IsKeeper
+from .permissions import IsKeeper
 from .serializers import (
     BeeYardSerializer,
     ContaminationSerializer,
@@ -32,41 +32,54 @@ def custom_401(request, exception):
     return render(request, "/templates/401.html", status=401)
 
 
-##### Views for Beekeeper Access to Data via API #####
+##### Views for Beekeeper Access to Data via private API #####
 
 
 class BeeYardViewSet(viewsets.ModelViewSet):
+    """API to allow CRUD on beeyard data."""
+
+    # Set the queryset to all beeyard objects
     queryset = BeeYard.objects.all()
     serializer_class = BeeYardSerializer
     permission_classes = [
-        permissions.IsAuthenticated,
-        # Only allows access to the beeyards of
+        # Only allow access to the beeyards of
         # the authenticated beekeeper
+        permissions.IsAuthenticated,
+        # Only show data for the current user
         IsKeeper,
     ]
     filterset_class = BeeYardFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
     def get_queryset(self, *args, **kwargs):
+        """Restricts the queryset to only items owned by the requesting user."""
         return BeeYard.objects.all().filter(beekeeper=self.request.user)
 
     @action(detail=True, methods=["POST"])
     def health_check_all_hives(self, request, pk):
+        """Function to apply a health check to all the hives in the same beeyard."""
+        # Get the beeyard object for the provided ID
         beeyard = BeeYard.objects.get(id=pk)
+        # Find hives which belong to the beeyard
         hives = Hive.objects.filter(beeyard=beeyard)
+        # Save a copy of the intervention object for the HTTP response
         interventions = []
+        # Make an intervention object for each hive and add it to the response data
         for hive in hives:
             intervention = Intervention.objects.create(
                 intervention_type="Health Check", hive_affected=hive
             )
             intervention = InterventionSerializer(intervention)
             interventions.append(intervention.data)
-
+        # Put the expected JSON format.
         response_data = {"interventions": interventions}
+        # Return the created data and a 201 Created code
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class HiveViewSet(viewsets.ModelViewSet):
+    """View to allow CRUD operations on hive data."""
+
     queryset = Hive.objects.all()
     serializer_class = HiveSerializer
     permission_classes = [
@@ -79,10 +92,13 @@ class HiveViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def get_queryset(self, *args, **kwargs):
+        """Restricts the queryset to only hives belonging to the connected beekeeper."""
         return Hive.objects.all().filter(beeyard__beekeeper=self.request.user)
 
 
 class InterventionViewSet(viewsets.ModelViewSet):
+    """View to allow CRUD operations on intervention data."""
+
     queryset = Intervention.objects.all()
     serializer_class = InterventionSerializer
     permission_classes = [
@@ -95,12 +111,17 @@ class InterventionViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def get_queryset(self, *args, **kwargs):
+        """Restricts the queryset to only interventions on hives
+        belonging to the connected beekeeper."""
+
         return Intervention.objects.all().filter(
             hive_affected__beeyard__beekeeper=self.request.user
         )
 
 
 class ContaminationViewSet(viewsets.ModelViewSet):
+    """View to allow CRUD operations on hive data."""
+
     queryset = Contamination.objects.all()
     serializer_class = ContaminationSerializer
     permission_classes = [
@@ -113,6 +134,7 @@ class ContaminationViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def get_queryset(self, *args, **kwargs):
+        """Restricts the queryset to only hives belonging to the connected beekeeper."""
         return Contamination.objects.all().filter(
             hive__beeyard__beekeeper=self.request.user
         )
@@ -126,6 +148,7 @@ class LoginInterfaceView(LoginView):
 
 
 def logout_request(request):
+    """Sends a confirmation message and redirects on logout."""
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect("/apiary/login")
@@ -214,17 +237,19 @@ def show_interventions(request):
             "intervention_type": intervention.intervention_type,
             "date": intervention.date,
         }
-        if intervention.intervention_type == "Syrup Distribution":
+        # Doesn't seem to be working, goal was to show the details but no time to debug
+        if intervention.intervention_type == "syrup_distribution":
             intervention_data["quantity"] = intervention.content_object.quantity
             intervention_data["units"] = "liters"
             intervention_data["syrup_type"] = intervention.content_object.syrup_type
-        elif intervention.intervention_type == "Harvest":
+        elif intervention.intervention_type == "harvest":
             intervention_data["quantity"] = intervention.content_object.quantity
             intervention_data["units"] = "kilos"
-        elif intervention.intervention_type == "Treatement":
+        elif intervention.intervention_type == "treatment":
             intervention_data["type"] = intervention.content_object.type
-        elif intervention.intervention_type == "Artificial Swarming":
+        elif intervention.intervention_type == "artificial_swarming":
             intervention_data["child_hive"] = intervention.content_object.__str__
+
         interventions.append(intervention_data)
     context = {"hive": hive.name, "interventions": interventions}
     return render(request, "interventions.html", context)
